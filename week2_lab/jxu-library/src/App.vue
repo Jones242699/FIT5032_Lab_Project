@@ -11,7 +11,7 @@ import { ref, computed } from 'vue';
       <img alt="Vue logo" class="logo" src="./assets/libray_avatar_ai_generated.png" width="125" height="125" />
 
       <div class="wrapper">
-        <HelloWorld msg="Good Job!" />
+        <HelloWorld msg="Welcome to JXUU's Library!" />
       </div>
     </header>
 

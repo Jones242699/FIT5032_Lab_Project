@@ -11,7 +11,7 @@ defineProps({
   <div class="greetings">
     <h1 class="green">{{ msg }}</h1>
     <h3>
-      You’ve half way to success when you reach this library. Keep going!
+      Good Job! By reaching here, you've already made it halfway to success. Keep going!
     </h3>
   </div>
 </template>
