@@ -6,20 +6,29 @@ import { ref, computed } from 'vue';
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/libray_avatar_ai_generated.png" width="125" height="125" />
+  <div class="main-layout">
+    <header>
+      <img alt="Vue logo" class="logo" src="./assets/libray_avatar_ai_generated.png" width="125" height="125" />
 
-    <div class="wrapper">
-      <HelloWorld msg="Good Job!" />
-    </div>
-  </header>
+      <div class="wrapper">
+        <HelloWorld msg="Good Job!" />
+      </div>
+    </header>
 
-  <main>
-    <JSONView />
-  </main>
+    <main>
+      <JSONView />
+    </main>
+  </div>
 </template>
 
 <style scoped>
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
 header {
   line-height: 1.5;
 }
