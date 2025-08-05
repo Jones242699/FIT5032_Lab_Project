@@ -6,13 +6,13 @@ import { ref, computed } from 'vue';
 </script>
 
 <template>
-  <!-- <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <header>
+    <img alt="Vue logo" class="logo" src="./assets/libray_avatar_ai_generated.png" width="125" height="125" />
 
     <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+      <HelloWorld msg="Good Job!" />
     </div>
-  </header> -->
+  </header>
 
   <main>
     <JSONView />
