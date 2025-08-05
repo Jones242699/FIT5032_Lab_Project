@@ -78,6 +78,11 @@
       <p>Store Types:</p>
       <!-- Activity 10: Iterate through the storeTypes array and display the store type and the number of stores that use that type. -->
       <!-- TODO: CODE TO RENDER LIST OF STORE TYPES HERE -->
+      <ul>
+        <li v-for="(count, type) in bookstores.storeTypes" :key="type">
+          {{ type }}: {{ count }} stores
+        </li>
+      </ul>
 
       <h3>Nested Objects</h3>
       <p>Opening Hours:</p>
