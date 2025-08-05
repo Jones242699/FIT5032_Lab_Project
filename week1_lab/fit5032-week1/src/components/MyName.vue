@@ -10,6 +10,6 @@
 <style scoped>
 .my-name {
     font-size: 1.2rem; 
-    color: #42b983;
+    color: #333
 }
 </style>
