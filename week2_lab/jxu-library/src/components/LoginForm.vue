@@ -1,29 +1,29 @@
 <template>
   <div class="container mt-5">
     <div class="row">
-      <div class="col-md-8 offset-md-2">
+      <div class="col-12 col-md-12 col-lg-11 mx-auto">
         <h1 class="text-center">User Information Form</h1>
 
         <form @submit.prevent="submitForm">
           <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-6">
               <label for="username" class="form-label">Username</label>
               <input id="username" type="text" class="form-control" v-model="formData.username" />
             </div>
-            <div class="col-md-6">
+            <div class="col-6">
               <label for="password" class="form-label">Password</label>
               <input id="password" type="password" class="form-control" v-model="formData.password" />
             </div>
           </div>
 
           <div class="row mb-3">
-            <div class="col-md-6">
+            <div class="col-6">
               <div class="form-check mt-4">
                 <input id="isAustralian" class="form-check-input" type="checkbox" v-model="formData.isAustralian" />
                 <label class="form-check-label" for="isAustralian">Australian Resident?</label>
               </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-6">
               <label for="gender" class="form-label">Gender</label>
               <select id="gender" class="form-select" v-model="formData.gender">
                 <option value="female">Female</option>
