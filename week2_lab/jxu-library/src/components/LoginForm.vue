@@ -8,24 +8,24 @@
           <div class="row mb-3">
             <div class="col-6">
               <label for="username" class="form-label">Username</label>
-              <input id="username" type="text" class="form-control" v-model="formData.username" />
+              <input id="username" type="text" class="form-control" required v-model="formData.username" />
             </div>
             <div class="col-6">
               <label for="password" class="form-label">Password</label>
-              <input id="password" type="password" class="form-control" v-model="formData.password" />
+              <input id="password" type="password" class="form-control" minlength="4" maxlength="10" v-model="formData.password" />
             </div>
           </div>
 
           <div class="row mb-3">
             <div class="col-6">
               <div class="form-check mt-4">
-                <input id="isAustralian" class="form-check-input" type="checkbox" v-model="formData.isAustralian" />
+                <input id="isAustralian" class="form-check-input" type="checkbox" required v-model="formData.isAustralian" />
                 <label class="form-check-label" for="isAustralian">Australian Resident?</label>
               </div>
             </div>
             <div class="col-6">
               <label for="gender" class="form-label">Gender</label>
-              <select id="gender" class="form-select" v-model="formData.gender">
+              <select id="gender" class="form-select" required v-model="formData.gender">
                 <option value="female">Female</option>
                 <option value="male">Male</option>
                 <option value="other">Other</option>
@@ -35,7 +35,7 @@
 
           <div class="mb-3">
             <label for="reason" class="form-label">Reason for joining</label>
-            <textarea id="reason" class="form-control" rows="3" v-model="formData.reason"></textarea>
+            <textarea id="reason" class="form-control" rows="3" minlength="10" maxlength="200" v-model="formData.reason"></textarea>
           </div>
 
           <div class="text-center">
