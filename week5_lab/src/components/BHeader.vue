@@ -1,9 +1,19 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
 const isAuthenticated = ref(localStorage.getItem('isAuthenticated') === 'true')
+
+watch(
+  () => route.fullPath,
+  () => {
+    isAuthenticated.value = localStorage.getItem('isAuthenticated') === 'true'
+  }
+)
 
 const logout = () => {
   localStorage.removeItem('isAuthenticated')
