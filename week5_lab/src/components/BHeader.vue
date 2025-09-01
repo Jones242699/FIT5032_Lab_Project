@@ -1,21 +1,49 @@
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const isAuthenticated = ref(localStorage.getItem('isAuthenticated') === 'true')
+
+const logout = () => {
+  localStorage.removeItem('isAuthenticated')
+  isAuthenticated.value = false
+  router.push('/login')
+}
+</script>
+
 <template>
-  <!-- Using Bootstrap's Header template (starter code) -->
-  <!-- https://getbootstrap.com/docs/5.0/examples/headers/ -->
   <div class="container">
-    <header class="d-flex justify-content-center py-3">
-      <ul class="nav nav-pills">
+    <header class="d-flex align-items-center py-3">
+      <!-- Center navigation: Home & About -->
+      <ul class="nav nav-pills mx-auto">
         <li class="nav-item">
-          <router-link to="/" class="nav-link" active-class="active" aria-current="page"
-            >Home (Week 5)</router-link
-          >
+          <router-link to="/" class="nav-link" active-class="active" aria-current="page">
+            Home (Week 5)
+          </router-link>
         </li>
         <li class="nav-item">
-          <router-link to="/about" class="nav-link" active-class="active">About</router-link>
+          <router-link to="/about" class="nav-link" active-class="active">
+            About
+          </router-link>
+        </li>
+      </ul>
+
+      <!-- Right side navigation: Login / Logout -->
+      <ul class="nav">
+        <li v-if="!isAuthenticated" class="nav-item">
+          <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
+        </li>
+        <li v-else class="nav-item">
+          <button class="btn btn-link nav-link" style="padding: 0;" @click="logout">
+            Logout
+          </button>
         </li>
       </ul>
     </header>
   </div>
 </template>
+
 
 <style scoped>
 .b-example-divider {
