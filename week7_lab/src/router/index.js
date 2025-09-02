@@ -7,7 +7,7 @@ import FirebaseSigninView from '../views/FirebaseSigninView.vue'
 const routes = [
   { path: '/', component: HomeView },
   { path: '/about', component: AboutView, meta: { requiresAuth: true } },
-  { path: '/login', component: LoginView }
+  { path: '/login', component: LoginView },
   { path: '/FireLogin', component: FirebaseSigninView } 
 ]
 
