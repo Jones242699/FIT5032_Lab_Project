@@ -48,7 +48,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 // form fields
 const email = ref("");
 const password = ref("");
-const role = ref("user"); // defaut User
+const role = ref("user"); // default User
 
 // router instance
 const router = useRouter();
@@ -58,10 +58,29 @@ const auth = getAuth();
 const signin = () => {
   signInWithEmailAndPassword(auth, email.value, password.value)
     .then((userCredential) => {
-      console.log("Firebase Sign-in Successful!", userCredential.user.email);
-      console.log("Selected Role:", role.value); // print selected role
+      const user = userCredential.user;
+
+      // Determine actual role 
+      let actualRole = "user";
+      if (user.email === "admin1@example.com") {
+        actualRole = "admin";
+      }
+
+      // Compare selected role with actual role
+      if (role.value !== actualRole) {
+        alert(
+          `Role mismatch! ${user.email} is not allowed to sign in as ${role.value}`
+        );
+        console.error("Role mismatch");
+        return; // Stop here, don't continue to home
+      }
+
+      console.log("Firebase Sign-in Successful!", user.email);
+      console.log("Selected Role:", role.value);
+      console.log("Actual Role:", actualRole);
       console.log("Current User:", auth.currentUser);
-      alert(`Login successful as ${role.value}!`);
+
+      alert(`Login successful as ${actualRole}!`);
       router.push("/"); // Redirect to home page after login
     })
     .catch((error) => {
