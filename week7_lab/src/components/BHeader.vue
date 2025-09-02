@@ -1,24 +1,35 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 
 const router = useRouter()
-const route = useRoute()
-const isAuthenticated = ref(localStorage.getItem('isAuthenticated') === 'true')
+const isAuthenticated = ref(false)
+const auth = getAuth()
 
-watch(
-  () => route.fullPath,
-  () => {
-    isAuthenticated.value = localStorage.getItem('isAuthenticated') === 'true'
-  }
-)
+// Check authentication state on component mount
+onMounted(() => {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      isAuthenticated.value = true
+      console.log("User logged in:", user.email)
+    } else {
+      isAuthenticated.value = false
+      console.log("No user logged in")
+    }
+  })
+})
 
+// Firebase Logout
 const logout = () => {
-  localStorage.removeItem('isAuthenticated')
-  isAuthenticated.value = false
-  router.push('/login')
+  signOut(auth)
+    .then(() => {
+      console.log("User signed out successfully")
+      router.push('/FireLogin') // Redirect to login page after logout
+    })
+    .catch((error) => {
+      console.error("Logout error:", error)
+    })
 }
 </script>
 
@@ -39,23 +50,17 @@ const logout = () => {
         </li>
       </ul>
 
-      <!-- Right side navigation: Login / Logout -->
+      <!-- Right side navigation: Firebase Login/Register/Logout -->
       <ul class="nav">
-        <li class="nav-item">
-          <!-- Firebase Authentication Login -->
+        <li v-if="!isAuthenticated" class="nav-item">
           <router-link to="/FireLogin" class="nav-link" active-class="active">
             Firebase Login
           </router-link>
         </li>
-        <li class="nav-item">
-          <!-- Firebase Authentication Register -->
+        <li v-if="!isAuthenticated" class="nav-item">
           <router-link to="/FireRegister" class="nav-link" active-class="active">
             Firebase Register
           </router-link>
-        </li>
-        
-        <li v-if="!isAuthenticated" class="nav-item">
-          <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
         </li>
         <li v-else class="nav-item">
           <button class="btn btn-link nav-link" style="padding: 0;" @click="logout">
@@ -66,7 +71,6 @@ const logout = () => {
     </header>
   </div>
 </template>
-
 
 <style scoped>
 .b-example-divider {
