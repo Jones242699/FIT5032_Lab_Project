@@ -4,6 +4,8 @@ import AboutView from '../views/AboutView.vue'
 import LoginView from '../views/LoginView.vue'
 import FirebaseSigninView from '../views/FirebaseSigninView.vue'
 import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
+import { getAuth, onAuthStateChanged } from "firebase/auth"
+
 const routes = [
   { path: '/', component: HomeView },
   { path: '/about', component: AboutView, meta: { requiresAuth: true } },
@@ -17,13 +19,26 @@ const router = createRouter({
   routes
 })
 
+// router guard: ensure that only after login can each router be reached
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true'
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login') // if not authenticated, redirect to login
-  } else {
-    next()
-  }
-})
+  const auth = getAuth();
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
 
-export default router
+  if (!requiresAuth) {
+    next();
+    return;
+  }
+
+  // use Firebase's onAuthStateChanged to check whether user has already logged in
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("Router Guard: User logged in:", user.email)
+      next();
+    } else {
+      console.warn("Router Guard: No user logged in, redirecting to FireLogin")
+      next('/FireLogin');
+    }
+  });
+});
+
+export default router;
