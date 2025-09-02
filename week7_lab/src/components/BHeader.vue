@@ -41,6 +41,13 @@ const logout = () => {
 
       <!-- Right side navigation: Login / Logout -->
       <ul class="nav">
+        <li class="nav-item">
+          <!-- Firebase Authentication Login -->
+          <router-link to="/FireLogin" class="nav-link" active-class="active">
+            Firebase Login
+          </router-link>
+        </li>
+        
         <li v-if="!isAuthenticated" class="nav-item">
           <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
         </li>
