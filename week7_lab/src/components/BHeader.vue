@@ -47,6 +47,12 @@ const logout = () => {
             Firebase Login
           </router-link>
         </li>
+        <li class="nav-item">
+          <!-- Firebase Authentication Register -->
+          <router-link to="/FireRegister" class="nav-link" active-class="active">
+            Firebase Register
+          </router-link>
+        </li>
         
         <li v-if="!isAuthenticated" class="nav-item">
           <router-link to="/login" class="nav-link" active-class="active">Login</router-link>
