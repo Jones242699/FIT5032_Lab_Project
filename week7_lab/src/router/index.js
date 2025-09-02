@@ -7,7 +7,7 @@ import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
 import { getAuth, onAuthStateChanged } from "firebase/auth"
 
 const routes = [
-  { path: '/', component: HomeView },
+  { path: '/', component: HomeView, meta: { requiresAuth: true } },
   { path: '/about', component: AboutView, meta: { requiresAuth: true } },
   { path: '/login', component: LoginView },
   { path: '/FireLogin', component: FirebaseSigninView },

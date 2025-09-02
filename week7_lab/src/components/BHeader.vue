@@ -40,7 +40,7 @@ const logout = () => {
       <ul class="nav nav-pills mx-auto">
         <li class="nav-item">
           <router-link to="/" class="nav-link" active-class="active" aria-current="page">
-            Home (Week 5)
+            Home
           </router-link>
         </li>
         <li class="nav-item">
