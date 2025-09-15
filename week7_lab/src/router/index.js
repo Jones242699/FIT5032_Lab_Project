@@ -5,13 +5,15 @@ import LoginView from '../views/LoginView.vue'
 import FirebaseSigninView from '../views/FirebaseSigninView.vue'
 import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
 import { getAuth, onAuthStateChanged } from "firebase/auth"
+import AddBookView from '../views/AddBookView.vue';
 
 const routes = [
   { path: '/', component: HomeView, meta: { requiresAuth: true } },
   { path: '/about', component: AboutView, meta: { requiresAuth: true } },
   { path: '/login', component: LoginView },
   { path: '/FireLogin', component: FirebaseSigninView },
-  { path: '/FireRegister', component: FirebaseRegisterView }
+  { path: '/FireRegister', component: FirebaseRegisterView },
+  { path: '/addbook', name: 'AddBook', component: AddBookView, meta: { requiresAuth: true } }
 ]
 
 const router = createRouter({
