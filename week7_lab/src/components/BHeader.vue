@@ -39,18 +39,13 @@ const logout = () => {
       <!-- Center navigation: Home & About -->
       <ul class="nav nav-pills mx-auto">
         <li class="nav-item">
-          <router-link to="/" class="nav-link" active-class="active" aria-current="page">
-            Home
+          <router-link to="/addbook" class="nav-link" active-class="active">
+            Add Book
           </router-link>
         </li>
         <li class="nav-item">
           <router-link to="/about" class="nav-link" active-class="active">
             About
-          </router-link>
-        </li>
-        <li class="nav-item">
-          <router-link to="/addbook" class="nav-link" active-class="active">
-            Add Book
           </router-link>
         </li>
       </ul>

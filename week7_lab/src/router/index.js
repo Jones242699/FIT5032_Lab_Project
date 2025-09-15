@@ -8,7 +8,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth"
 import AddBookView from '../views/AddBookView.vue';
 
 const routes = [
-  { path: '/', component: HomeView, meta: { requiresAuth: true } },
+  { path: '/', component: AddBookView, meta: { requiresAuth: true } },
   { path: '/about', component: AboutView, meta: { requiresAuth: true } },
   { path: '/login', component: LoginView },
   { path: '/FireLogin', component: FirebaseSigninView },
