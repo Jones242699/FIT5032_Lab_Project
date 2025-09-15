@@ -1,8 +1,11 @@
 <template>
   <div class="container mt-5">
     <div class="card shadow-sm p-4 mx-auto" style="max-width: 500px;">
-      <h2 class="mb-4 text-center">&#128218; Add a New Book</h2>
-      <form @submit.prevent="addBook">
+      <h2 class="mb-4 text-center">
+        &#128218; {{ editingId ? 'Update Book' : 'Add a New Book' }}
+      </h2>
+
+      <form @submit.prevent="submitForm">
         <!-- ISBN -->
         <div class="mb-3">
           <label for="isbn" class="form-label">ISBN</label>
@@ -29,54 +32,116 @@
           />
         </div>
 
-        <!-- Submit -->
-        <button type="submit" class="btn btn-primary w-100">
-          &#10133; Add Book
-        </button>
+        <!-- Submit + Reset -->
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary w-100">
+            {{ editingId ? 'Save Changes' : 'Submit' }}
+          </button>
+          <button type="button" class="btn btn-outline-secondary" @click="resetForm">
+            Reset
+          </button>
+        </div>
       </form>
-        <BookList class="mt-4" />
+
+      <!-- Child component: use key to trigger refresh -->
+      <BookList
+        class="mt-4"
+        :key="refreshKey"
+        @edit-book="startEdit"
+        @delete-book="handleDelete"
+      />
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
-import db from '../firebase/init.js';
-import { collection, addDoc } from 'firebase/firestore';
-import BookList from '../components/BookList.vue';
+import { ref } from 'vue'
+import db from '../firebase/init.js'
+import { collection, addDoc, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore'
+import BookList from '../components/BookList.vue'
 
 export default {
   components: { BookList },
   setup() {
-    const isbn = ref('');
-    const name = ref('');
+    const isbn = ref('')
+    const name = ref('')
 
-    const addBook = async () => {
+    // Track editing state
+    const editingId = ref(null)
+    // Key for forcing child component re-render
+    const refreshKey = ref(0)
+
+    const resetForm = () => {
+      isbn.value = ''
+      name.value = ''
+      editingId.value = null
+    }
+
+    const addBook = async (isbnNumber, nameStr) => {
+      await addDoc(collection(db, 'books'), { isbn: isbnNumber, name: nameStr })
+    }
+
+    const updateBook = async (id, isbnNumber, nameStr) => {
+      const bookRef = doc(db, 'books', id)
+      const oldSnap = await getDoc(bookRef)
+      const oldData = oldSnap.exists() ? oldSnap.data() : {}
+      const noChange =
+        Number(oldData.isbn) === isbnNumber && String(oldData.name) === String(nameStr)
+      if (noChange) return { changed: false }
+      await updateDoc(bookRef, { isbn: isbnNumber, name: nameStr })
+      return { changed: true }
+    }
+
+    const submitForm = async () => {
       try {
-        const isbnNumber = Number(isbn.value);
+        const isbnNumber = Number(isbn.value)
         if (isNaN(isbnNumber)) {
-          alert('ISBN must be a valid number');
-          return;
+          alert('ISBN must be a valid number'); return
         }
 
-        await addDoc(collection(db, 'books'), {
-          isbn: isbnNumber,
-          name: name.value
-        });
+        if (editingId.value) {
+          const res = await updateBook(editingId.value, isbnNumber, name.value)
+          if (!res.changed) { alert('No changes detected.'); resetForm(); return }
+          alert('Book updated!')
+        } else {
+          await addBook(isbnNumber, name.value)
+          alert('Book added successfully!')
+        }
 
-        isbn.value = '';
-        name.value = '';
-        alert('Book added successfully!');
-      } catch (error) {
-        console.error('Error adding book: ', error);
+        resetForm()
+        refreshKey.value++
+      } catch (e) {
+        console.error(e)
       }
-    };
+    }
+
+    const startEdit = (book) => {
+      editingId.value = book.id
+      isbn.value = book.isbn
+      name.value = book.name
+    }
+
+    const handleDelete = async (id) => {
+      try {
+        await deleteDoc(doc(db, 'books', id))
+        alert('Book deleted!')
+        refreshKey.value++ // Refresh list after delete
+        if (editingId.value === id) resetForm()
+      } catch (error) {
+        console.error('Error deleting book: ', error)
+      }
+    }
 
     return {
       isbn,
       name,
-      addBook
-    };
+      editingId,
+      refreshKey,
+      submitForm,
+      resetForm,
+      startEdit,
+      handleDelete
+    }
   }
-};
+}
 </script>
