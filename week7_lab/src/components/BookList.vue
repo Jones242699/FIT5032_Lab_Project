@@ -1,6 +1,7 @@
 <template>
   <div class="mt-4">
-    <h3>&#128214; Book List (ISBN > 1000)</h3>
+    <h3>&#128214; Book List </h3>
+    <h5>(Top5: OderBy ISBN > 1000)</h5>
     <ul class="list-group">
       <li
         v-for="book in books"
@@ -40,7 +41,9 @@ import {
   updateDoc,
   deleteDoc,
   query,
-  where
+  where,
+  orderBy,
+  limit
 } from 'firebase/firestore';
 
 export default {
@@ -48,23 +51,28 @@ export default {
   setup() {
     const books = ref([]);
 
-    // Fetch books from Firestore (only ISBN > 1000)
-    const fetchBooks = async () => {
-      try {
-        const q = query(
-          collection(db, 'books'),
-          where('isbn', '>', 1000)
-        );
-        const querySnapshot = await getDocs(q);
-        books.value = querySnapshot.docs.map((docSnap) => ({
-          id: docSnap.id,
-          ...docSnap.data()
-        }));
-      } catch (error) {
-        console.error('Error fetching books: ', error);
-      }
-    };
+// Fetch books from Firestore with specific query conditions
+const fetchBooks = async () => {
+  try {
+    // Example query with WHERE + ORDER BY + LIMIT
+    const q = query(
+      collection(db, 'books'),
+      where('isbn', '>', 1000),   // WHERE: only isbn greater than 1000
+      orderBy('isbn', 'asc'),   // ORDER BY: sort by isbn descending
+      limit(5)                   // LIMIT: take only top 5 results
+    );
 
+    const querySnapshot = await getDocs(q);
+
+    // Map Firestore docs into plain JS objects
+    books.value = querySnapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data()
+    }));
+  } catch (error) {
+    console.error('Error fetching books: ', error);
+  }
+};
     // Update book name (simple example: set name to "Updated Book")
     const updateBook = async (id) => {
       try {
