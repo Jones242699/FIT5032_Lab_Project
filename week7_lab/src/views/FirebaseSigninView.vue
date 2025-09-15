@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-5">
-    <!-- choose roles -->
+    <!-- Role selector -->
     <div class="d-flex justify-content-end mb-3">
       <select v-model="role" class="form-select w-auto">
         <option value="user">User</option>
@@ -28,8 +28,8 @@
       />
     </div>
 
-    <button class="btn btn-success w-100" @click="signin">
-      Sign in via Firebase
+    <button class="btn btn-success w-100" :disabled="loading" @click="signin">
+      {{ loading ? 'Signing in...' : 'Sign in via Firebase' }}
     </button>
 
     <!-- register entrance-->
@@ -41,53 +41,81 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+// Composition API
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-// form fields
-const email = ref("");
-const password = ref("");
-const role = ref("user"); // default User
+// Firebase Auth & Firestore
+import { getAuth, signInWithEmailAndPassword, signOut } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
+import db from '../firebase/init' // <-- adjust path if needed
 
-// router instance
-const router = useRouter();
-const auth = getAuth();
+// Form fields
+const email = ref('')
+const password = ref('')
+const role = ref('user') // default selection
+const loading = ref(false)
 
-// sign-in function
-const signin = () => {
-  signInWithEmailAndPassword(auth, email.value, password.value)
-    .then((userCredential) => {
-      const user = userCredential.user;
+// Router instance
+const router = useRouter()
+const auth = getAuth()
 
-      // Determine actual role 
-      let actualRole = "user";
-      if (user.email === "admin1@example.com") {
-        actualRole = "admin";
-      }
+/**
+ * Sign in flow:
+ * 1) Auth login to get uid
+ * 2) Read users/{uid} from Firestore to get `role`
+ * 3) Compare Firestore role with UI-selected role
+ * 4) On mismatch -> signOut + alert; on match -> save state + navigate
+ */
+const signin = async () => {
+  if (loading.value) return
+  loading.value = true
+  try {
+    // 1) Login with Firebase Auth
+    const { user } = await signInWithEmailAndPassword(auth, email.value, password.value)
 
-      // Compare selected role with actual role
-      if (role.value !== actualRole) {
-        alert(
-          `Role mismatch! ${user.email} is not allowed to sign in as ${role.value}`
-        );
-        console.error("Role mismatch");
-        return; // Stop here, don't continue to home
-      }
+    // 2) Read role from Firestore: users/{uid}
+    const profileRef = doc(db, 'users', user.uid)
+    const snap = await getDoc(profileRef)
 
-      console.log("Firebase Sign-in Successful!", user.email);
-      console.log("Selected Role:", role.value);
-      console.log("Actual Role:", actualRole);
-      console.log("Current User:", auth.currentUser);
+    if (!snap.exists()) {
+      // No profile doc -> sign out to avoid unknown-role session
+      await signOut(auth)
+      alert('No profile found for this account. Please contact admin to set your role.')
+      return
+    }
 
-      alert(`Login successful as ${actualRole}!`);
-      router.push("/"); // Redirect to home page after login
-    })
-    .catch((error) => {
-      console.error("Login error:", error.code, error.message);
-      alert(`Error: ${error.code}`);
-    });
-};
+    // Normalize roles to lowercase strings for comparison
+    const actualRole = String(snap.data().role || '').toLowerCase()
+    const selectedRole = String(role.value || '').toLowerCase()
+
+    if (!selectedRole) {
+      await signOut(auth)
+      alert('Please select a role to sign in.')
+      return
+    }
+
+    // 3) Compare Firestore role vs selected role
+    if (selectedRole !== actualRole) {
+      await signOut(auth)
+      alert(`Role mismatch: ${user.email} is '${actualRole}', not '${selectedRole}'.`)
+      return
+    }
+
+    // 4) Persist minimal session state and navigate
+    localStorage.setItem('isAuthenticated', 'true')
+    localStorage.setItem('role', actualRole)
+    localStorage.setItem('email', user.email || '')
+
+    alert(`Login successful as ${actualRole}!`)
+    router.push('/') // or to a protected page like '/sports-events'
+  } catch (err) {
+    console.error('Login error:', err.code, err.message)
+    alert(`Error: ${err.code}`)
+  } finally {
+    loading.value = false
+  }
+}
 </script>
 
 <style scoped>

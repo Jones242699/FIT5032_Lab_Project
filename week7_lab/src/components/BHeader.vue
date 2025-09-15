@@ -4,65 +4,111 @@ import { useRouter } from 'vue-router'
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth'
 
 const router = useRouter()
-const isAuthenticated = ref(false)
 const auth = getAuth()
 
-// Check authentication state on component mount
+// Reactive auth/UI state
+const isAuthenticated = ref(false)
+const role = ref(null)   // 'user' | 'admin' | null
+const email = ref(null)  // current user's email (for display)
+
+// Initialize from localStorage (useful on page refresh)
+const hydrateFromStorage = () => {
+  isAuthenticated.value = localStorage.getItem('isAuthenticated') === 'true'
+  role.value = localStorage.getItem('role')
+  email.value = localStorage.getItem('email')
+}
+
+// Keep localStorage and UI in sync
+const clearSessionStorage = () => {
+  localStorage.removeItem('isAuthenticated')
+  localStorage.removeItem('role')
+  localStorage.removeItem('email')
+}
+
+// Observe Firebase auth state
 onMounted(() => {
+  hydrateFromStorage()
+
   onAuthStateChanged(auth, (user) => {
     if (user) {
+      // If your login flow already set localStorage, prefer those values
       isAuthenticated.value = true
-      console.log("User logged in:", user.email)
+      // Fallback to user.email if localStorage not set yet
+      email.value = localStorage.getItem('email') || user.email || null
+      role.value = localStorage.getItem('role') || null
+      console.log('User logged in:', email.value, 'role:', role.value)
     } else {
       isAuthenticated.value = false
-      console.log("No user logged in")
+      role.value = null
+      email.value = null
+      clearSessionStorage()
+      console.log('No user logged in')
     }
   })
 })
 
-// Firebase Logout
-const logout = () => {
-  signOut(auth)
-    .then(() => {
-      console.log("User signed out successfully")
-      router.push('/FireLogin') // Redirect to login page after logout
-    })
-    .catch((error) => {
-      console.error("Logout error:", error)
-    })
+// Firebase logout with local cleanup
+const logout = async () => {
+  try {
+    await signOut(auth)
+    clearSessionStorage()
+    isAuthenticated.value = false
+    role.value = null
+    email.value = null
+    console.log('User signed out successfully')
+    router.push('/FireLogin') // Redirect to login page after logout
+  } catch (error) {
+    console.error('Logout error:', error)
+  }
 }
 </script>
 
 <template>
   <div class="container">
-    <header class="d-flex align-items-center py-3">
-      <!-- Center navigation: Home & About -->
+    <header class="d-flex align-items-center py-3 w-100">
+      <!-- Center navigation -->
       <ul class="nav nav-pills mx-auto">
         <li class="nav-item">
           <router-link to="/addbook" class="nav-link" active-class="active">
             Add Book
           </router-link>
         </li>
+
         <li class="nav-item">
           <router-link to="/about" class="nav-link" active-class="active">
             About
           </router-link>
         </li>
+
+        <!-- Optional: show Admin menu only for admin role -->
+        <li class="nav-item" v-if="role === 'admin'">
+          <router-link to="/admin" class="nav-link" active-class="active">
+            Admin
+          </router-link>
+        </li>
       </ul>
 
-      <!-- Right side navigation: Firebase Login/Register/Logout -->
+      <!-- Right side: Auth menu -->
       <ul class="nav">
         <li v-if="!isAuthenticated" class="nav-item">
           <router-link to="/FireLogin" class="nav-link" active-class="active">
             Firebase Login
           </router-link>
         </li>
+
         <li v-if="!isAuthenticated" class="nav-item">
           <router-link to="/FireRegister" class="nav-link" active-class="active">
             Firebase Register
           </router-link>
         </li>
-        <li v-else class="nav-item">
+
+        <li v-else class="nav-item d-flex align-items-center gap-2">
+          <!-- Optional: small identity chip -->
+          <span class="text-muted small">
+            {{ email }}
+            <span v-if="role" class="badge bg-secondary ms-1 text-uppercase">{{ role }}</span>
+          </span>
+
           <button class="btn btn-link nav-link" style="padding: 0;" @click="logout">
             Logout
           </button>
