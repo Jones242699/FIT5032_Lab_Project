@@ -7,8 +7,24 @@
         :key="book.id"
         class="list-group-item d-flex justify-content-between align-items-center"
       >
-        <span><strong>{{ book.name }}</strong></span>
-        <span class="badge bg-primary">ISBN: {{ book.isbn }}</span>
+        <!-- Left: book info -->
+        <div>
+          <span><strong>{{ book.name }}</strong></span>
+          <span class="badge bg-primary ms-2">ISBN: {{ book.isbn }}</span>
+        </div>
+        <!-- Right: action buttons -->
+        <div class="d-flex gap-2">
+          <!-- update button -->
+          <button @click="updateBook(book.id)" class="btn btn-sm btn-outline-primary">
+            Update
+          </button>
+
+          <!-- delete button -->
+          <button @click="deleteBook(book.id)" class="btn btn-sm btn-outline-danger">
+            Delete
+          </button>
+        </div>
+
       </li>
     </ul>
   </div>
@@ -17,34 +33,68 @@
 <script>
 import { ref, onMounted } from 'vue';
 import db from '../firebase/init.js';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  query,
+  where
+} from 'firebase/firestore';
 
 export default {
   name: 'BookList',
   setup() {
     const books = ref([]);
 
+    // Fetch books from Firestore (only ISBN > 1000)
     const fetchBooks = async () => {
       try {
         const q = query(
           collection(db, 'books'),
-          where('isbn', '>', 1000)  
+          where('isbn', '>', 1000)
         );
         const querySnapshot = await getDocs(q);
-        books.value = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
+        books.value = querySnapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data()
         }));
       } catch (error) {
         console.error('Error fetching books: ', error);
       }
     };
 
-    // load books on component mount
+    // Update book name (simple example: set name to "Updated Book")
+    const updateBook = async (id) => {
+      try {
+        const bookRef = doc(db, 'books', id);
+        await updateDoc(bookRef, { name: 'Updated Book' });
+        alert('Book updated!');
+        fetchBooks(); // Refresh list after update
+      } catch (error) {
+        console.error('Error updating book: ', error);
+      }
+    };
+
+    // Delete book by id
+    const deleteBook = async (id) => {
+      try {
+        await deleteDoc(doc(db, 'books', id));
+        alert('Book deleted!');
+        fetchBooks(); // Refresh list after delete
+      } catch (error) {
+        console.error('Error deleting book: ', error);
+      }
+    };
+
+    // Load books on component mount
     onMounted(fetchBooks);
 
     return {
-      books
+      books,
+      updateBook,
+      deleteBook
     };
   }
 };
