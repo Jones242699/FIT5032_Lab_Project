@@ -7,6 +7,7 @@ import LoginView from '../views/LoginView.vue'
 import FirebaseSigninView from '../views/FirebaseSigninView.vue'
 import FirebaseRegisterView from '../views/FirebaseRegisterView.vue'
 import AddBookView from '../views/AddBookView.vue'
+import GetBookCountView from '../views/GetBookCountView.vue'
 
 // Firebase
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
@@ -35,6 +36,7 @@ const routes = [
 
   // Also protected (same component as '/')
   { path: '/addbook', name: 'AddBook', component: AddBookView, meta: { requiresAuth: true } },
+  { path: '/GetBookCount', name: 'GetBookCount', component: GetBookCountView, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
