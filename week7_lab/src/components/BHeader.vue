@@ -81,6 +81,12 @@ const logout = async () => {
         </li>
 
         <li class="nav-item">
+          <router-link to="/WeatherCheck" class="nav-link" active-class="active">
+            Weather Check
+          </router-link>
+        </li>
+
+        <li class="nav-item">
           <router-link to="/about" class="nav-link" active-class="active">
             About
           </router-link>
