@@ -1,5 +1,6 @@
 <template>
   <section class="wrap container">
+    <button @click="goHome" class="back-btn">&larr; Back to Home</button>
     <h1>Book APP</h1>
 
     <p v-if="loading">Loading...</p>
@@ -12,12 +13,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 const count = ref(null)        // number | null
 const loading = ref(false)
 const errorMsg = ref('')
 const rawData = ref('')
+const router = useRouter()
 
 const FUNCTION_URL =
   import.meta.env.VITE_GET_BOOK_COUNT_URL ||
@@ -50,10 +53,38 @@ async function fetchCount() {
   }
 }
 
+function goHome() {
+  router.push('/')
+}
 onMounted(fetchCount)
 </script>
 
 <style scoped>
-.wrap { display: grid; gap: .75rem; align-items: start; }
-.container { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+.wrap {
+  display: grid;
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.back-btn {
+  background-color: #4b8bf4;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.2s;
+  justify-self: start;
+}
+
+.back-btn:hover {
+  background-color: #3a73d1;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
 </style>
