@@ -1,10 +1,12 @@
 <template>
   <section class="wrap container">
-    <h1>Book Counter</h1>
+    <h1>Book APP</h1>
 
     <p v-if="loading">Loading...</p>
     <p v-else-if="errorMsg">error</p>
     <p v-else-if="count !== null">Total number of books: {{ count }}</p>
+
+    <pre v-if="rawData">{{ rawData }}</pre>
   </section>
 </template>
 
@@ -15,10 +17,11 @@ import axios from 'axios'
 const count = ref(null)        // number | null
 const loading = ref(false)
 const errorMsg = ref('')
+const rawData = ref('')
 
 const FUNCTION_URL =
   import.meta.env.VITE_GET_BOOK_COUNT_URL ||
-  'http://127.0.0.1:5001/Week7-Junhong/us-central1/getBookCount'
+  'https://countbooks-vwp5bgk52a-uc.a.run.app'
 
 async function getBookCountAPI() {
   const { data } = await axios.get(FUNCTION_URL)
@@ -31,6 +34,7 @@ async function fetchCount() {
 
   try {
     const data = await getBookCountAPI()
+    rawData.value = JSON.stringify(data, null, 2)
     const n = typeof data === 'number' ? data : Number(data?.count)
 
     if (Number.isFinite(n)) {
