@@ -21,7 +21,7 @@ const errorMsg = ref('')
 
 const FUNCTION_URL =
   import.meta.env.VITE_GET_BOOK_COUNT_URL ||
-  'http://127.0.0.1:5001/Week7-Junhong/us-central1/getBookCount'
+  'https://countbooks-vwp5bgk52a-uc.a.run.app'
 
 async function fetchCount() {
   loading.value = true
