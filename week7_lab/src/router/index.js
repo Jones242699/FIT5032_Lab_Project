@@ -10,6 +10,7 @@ import AddBookView from '../views/AddBookView.vue'
 import GetBookCountView from '../views/GetBookCountView.vue'
 import WeatherView from '@/views/WeatherView.vue'
 import CountBookAPI from '@/views/CountBookAPI.vue'
+import GetAllBookAPI from '@/views/GetAllBookAPI.vue'
 
 // Firebase
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
@@ -41,6 +42,7 @@ const routes = [
   { path: '/GetBookCount', name: 'GetBookCount', component: GetBookCountView, meta: { requiresAuth: true } },
   { path: '/WeatherCheck', name: 'GetWeather', component: WeatherView, meta: { requiresAuth: true } },
   { path: '/CountBookAPI', name: 'CountBookAPI', component: CountBookAPI, meta: { requiresAuth: true } },
+  { path: '/GetAllBookAPI', name: 'GetAllBookAPI', component: GetAllBookAPI, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
