@@ -93,3 +93,28 @@ exports.capitaliseBook = functionsV1.firestore
       throw e;
     }
   });
+
+  // HTTP function: list all documents in "books" as JSON
+exports.getAllBooks = onRequest(async (req, res) => {
+  return corsMiddleware(req, res, async () => {
+    if (req.method === "OPTIONS") {
+      res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+      res.set("Access-Control-Max-Age", "3600");
+      return res.status(204).send("");
+    }
+
+    if (req.method !== "GET") {
+      return res.status(405).json({ error: "Method Not Allowed. Use GET." });
+    }
+
+    try {
+      const snap = await db.collection("books").get();
+      const books = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      return res.status(200).json(books);
+    } catch (err) {
+      logger.error("Failed to fetch books", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+});
