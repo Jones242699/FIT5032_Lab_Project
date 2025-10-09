@@ -57,3 +57,39 @@ exports.countBooks = onRequest(async (req, res) => {
     }
   });
 });
+
+// NEW Firestore trigger: capitalise all book fields on creation
+const functionsV1 = require("firebase-functions/v1");
+
+exports.capitaliseBook = functionsV1.firestore
+  .document("books/{bookId}")
+  .onCreate(async (snap, ctx) => {
+    try {
+      const data = snap.data() || {};
+      const up = {};
+
+      // Uppercase all top-level string fields except ones starting with "_"
+      for (const [key, val] of Object.entries(data)) {
+        if (typeof val === "string" && !key.startsWith("_")) {
+          up[key] = val.toUpperCase();
+        }
+      }
+
+      if (Object.keys(up).length === 0) {
+        // nothing to normalise (e.g., only numbers/objects present)
+        return;
+      }
+
+      up._normalizedAt = admin.firestore.FieldValue.serverTimestamp();
+      await snap.ref.update(up);
+
+      logger.info("capitaliseBook updated", {
+        docId: snap.id,
+        projectId: process.env.GCLOUD_PROJECT,
+        updatedKeys: Object.keys(up)
+      });
+    } catch (e) {
+      logger.error("capitaliseBook failed", e);
+      throw e;
+    }
+  });
